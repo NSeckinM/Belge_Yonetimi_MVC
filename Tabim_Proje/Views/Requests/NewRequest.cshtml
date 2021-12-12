@@ -1,0 +1,29 @@
+﻿@model UserRequest
+
+<form asp-controller="Requests" asp-action="NewRequest" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label asp-for="UserName">First Name</label>
+        <input asp-for="UserName" />
+    </div>
+    <div class="form-group">
+        <label asp-for="UserLastName">Last Name</label>
+        <input asp-for="UserLastName" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Explanation">Explanation</label>
+        <input asp-for="Explanation" type="text" />
+    </div>
+
+    <h2 class="text-center lead"> Upload The Document</h2>
+    <div class="form-group">
+        <input type="file" accept="pdf/*" name="file" class="form-control" />
+        <span class="alert-danger" asp-validation-for="Document"></span>
+    </div>
+
+    @*<div class="form-group text-right">
+        <input type="submit" class="btn btn-success btn-sm w-25" value="Save" />
+        </div>*@
+
+    <button class="btn btn-success btn-sm w-25">Send</button>
+
+</form>

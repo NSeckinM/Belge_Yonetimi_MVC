@@ -11,13 +11,16 @@
 }
 else
 {
-    <ul>
-        @foreach (var item in Model)
-        {
-            <li>@item.Document</li>
-            <li>@item.ConsiderationStatus</li>
-            <li>@item.TimeOfConsideration</li>
-        }
-    </ul>
+<ul>
+    @foreach (var item in Model)
+    {
+        <li>@item.UserName</li>
+        <li>@item.UserLastName</li>
+        <li>@item.Explanation</li>
+
+        <li>@item.ConsiderationStatus</li>
+        <li>@item.TimeOfConsideration</li>
+    }
+</ul>
 }
 

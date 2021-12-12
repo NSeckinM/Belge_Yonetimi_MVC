@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Tabim_Proje.Data
 {
@@ -19,7 +16,7 @@ namespace Tabim_Proje.Data
 
         public string Explanation { get; set; }
 
-        [Required]
+        [Required(ErrorMessage ="This field is required and only .pdf extension document type  is acceptable !")]
         public string Document { get; set; }
 
         public bool ConsiderationStatus { get; set; }
