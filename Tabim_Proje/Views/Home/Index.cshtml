@@ -1,15 +1,23 @@
-﻿@{
+﻿@model List<UserRequest>
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
+<a asp-controller="Requests" asp-action="NewRequest" class="btn btn-outline-primary"> Create new Rquest </a>
 
-    <div class="row justify-content-center">
-        <p class="col-md-9">To Be Approved Your Requests And Documents please </p>
-    </div>
-    <div>
-        <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-primary">Register</a>
-        <p>If you Already have an account <a asp-area="Identity" asp-page="/Account/Login">Login</a> </p>
-    </div>
-</div>
+@if (Model.Count == 0)
+{
+    <p>Sorry You have not any Request to Show yet </p>
+}
+else
+{
+    <ul>
+        @foreach (var item in Model)
+        {
+            <li>@item.Document</li>
+            <li>@item.ConsiderationStatus</li>
+            <li>@item.TimeOfConsideration</li>
+        }
+    </ul>
+}
+
