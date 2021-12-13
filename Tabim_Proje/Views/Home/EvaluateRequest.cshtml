@@ -3,15 +3,16 @@
 
 <form asp-controller="Home" asp-action="EvaluateRequest" method="post">
     <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ApplicationUserId" />
 
     <div class="form-group">
         <label asp-for="ResultOfConsideration"></label>
         <textarea asp-for="ResultOfConsideration" class="form-control" rows="10"></textarea>
     </div>
     <div>
-        <label for="@Model.ConsiderationStatus">Resul :</label>
+        <label for="@Model.ConsiderationStatus">Result :</label>
 
-        <select id="status" name="status">
+        <select class="custom-select" id="status" name="status">
             <option value="true">Approve</option>
             <option value="false">Reject</option>
 

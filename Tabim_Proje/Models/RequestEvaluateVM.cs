@@ -23,5 +23,7 @@ namespace Tabim_Proje.Models
         public bool ConsiderationStatus { get; set; }
 
         public DateTime TimeOfConsideration { get; set; }
+
+        public string ApplicationUserId { get; set; }
     }
 }

@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Tabim_Proje.Data;
@@ -44,7 +46,6 @@ namespace Tabim_Proje.Controllers
             }
 
         }
-
         public IActionResult IndexAdmin(string inf)
         {
             IQueryable<UserRequest> requests = _db.UserRequests;
@@ -61,6 +62,11 @@ namespace Tabim_Proje.Controllers
                 vm.Approved = requests.Where(x => x.ConsiderationStatus == true).OrderByDescending(x => x.CreationTime).ToList();
                 return View(vm.Approved);
             }
+            else if (inf == "pending")
+            {
+                vm.Unapproved = requests.Where(x => x.ConsiderationStatus == false && x.TimeOfConsideration == DateTime.MinValue).OrderByDescending(x => x.CreationTime).ToList();
+                return View(vm.Unapproved);
+            }
             else
             {
                 vm.AllRequest = requests.OrderByDescending(x => x.CreationTime).ToList();
@@ -69,13 +75,15 @@ namespace Tabim_Proje.Controllers
 
         }
 
+        public IActionResult Report()
+        {
 
+            return View();
+        }
         public IActionResult ShowDocument(string infpath)
         {
-            //return File("~/documents/seckinMantar-Resume.pdf", "application/pdf");
-            return File(infpath, "application/pdf");  //fileResult
+            return File(infpath, "application/pdf");
         }
-
 
         public IActionResult EvaluateRequest(int infId)
         {
@@ -86,14 +94,18 @@ namespace Tabim_Proje.Controllers
             }
             RequestEvaluateVM vm = new();
             vm.Id = userRequest.Id;
-            
+            vm.ApplicationUserId = userRequest.ApplicationUserId;
+
             return View(vm);
         }
 
-        [HttpPost,ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public IActionResult EvaluateRequest(RequestEvaluateVM vm, string status)
         {
+            var user = _db.Users.Find(vm.ApplicationUserId);
+            string mailAddress = user.Email;
             bool RequestStatus;
+            string mailstatus;
 
             if (status == "true")
             {
@@ -104,14 +116,20 @@ namespace Tabim_Proje.Controllers
                 RequestStatus = false;
             }
 
-                UserRequest userRequest = _db.UserRequests.Find(vm.Id);
-                userRequest.ConsiderationStatus = RequestStatus;
-                userRequest.TimeOfConsideration = DateTime.Now;
-                userRequest.ResultOfConsideration = vm.ResultOfConsideration;
-                _db.SaveChanges();
+            UserRequest userRequest = _db.UserRequests.Find(vm.Id);
+            userRequest.ConsiderationStatus = RequestStatus;
+            userRequest.TimeOfConsideration = DateTime.Now;
+            userRequest.ResultOfConsideration = vm.ResultOfConsideration;
+            _db.SaveChanges();
 
-                return RedirectToAction("IndexAdmin", "Home");
- 
+            if (RequestStatus)
+                mailstatus = "Approved";
+            else
+                mailstatus = "Rejected";
+
+            SendMail(vm.ResultOfConsideration, mailstatus, mailAddress);
+            return RedirectToAction("IndexAdmin", "Home");
+
         }
 
         public IActionResult Privacy()
@@ -123,6 +141,22 @@ namespace Tabim_Proje.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+        private void SendMail(string content, string status, string email)
+        {
+            string sender = "seckinmantar@gmail.com";//kullanıcı adı
+            string to = email;
+            string subject = "Result of Consideration";
+            string body = "Dear applicant, \n" + content + "\n Result:  " + status;
+
+            MailMessage posta = new MailMessage(sender, to, subject, body);
+            using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))//gönderici maili
+            {
+                smtp.Credentials = new NetworkCredential("seckinmantar@gmail.com", "seckinmntr");
+                smtp.EnableSsl = true;
+                smtp.Send(posta);
+            }
+
         }
     }
 }
