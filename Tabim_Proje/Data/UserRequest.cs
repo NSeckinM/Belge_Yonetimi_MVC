@@ -16,8 +16,14 @@ namespace Tabim_Proje.Data
 
         public string Explanation { get; set; }
 
-        [Required(ErrorMessage ="This field is required and only .pdf extension document type  is acceptable !")]
+        [Required]
         public string Document { get; set; }
+
+        public string DocumentName { get; set; }
+
+        public string ResultOfConsideration { get; set; }
+
+        public DateTime CreationTime { get; set; } = DateTime.Now;
 
         public bool ConsiderationStatus { get; set; }
 

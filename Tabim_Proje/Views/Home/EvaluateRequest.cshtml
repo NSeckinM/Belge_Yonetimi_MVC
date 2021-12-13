@@ -1,0 +1,24 @@
+﻿@model RequestEvaluateVM
+
+
+<form asp-controller="Home" asp-action="EvaluateRequest" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="ResultOfConsideration"></label>
+        <textarea asp-for="ResultOfConsideration" class="form-control" rows="10"></textarea>
+    </div>
+    <div>
+        <label for="@Model.ConsiderationStatus">Resul :</label>
+
+        <select id="status" name="status">
+            <option value="true">Approve</option>
+            <option value="false">Reject</option>
+
+        </select>
+    </div>
+
+    <button class="btn btn-outline-primary">save</button>
+
+
+</form>

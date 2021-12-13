@@ -1,4 +1,92 @@
-﻿
+﻿@model List<UserRequest>
 
+<div class="row">
 
-<div> You are the king of this app  </div>
+    <div class="col-md-4 col-lg-3">
+        <h3>User's Requests</h3>
+        <div>
+            <a class="list-group-item list-group-item-action" asp-controller="Home" asp-action="IndexAdmin" asp-route-inf="all">All Request</a>
+            <a class="list-group-item list-group-item-action" asp-controller="Home" asp-action="IndexAdmin" asp-route-inf="true">Approved</a>
+            <a class="list-group-item list-group-item-action" asp-controller="Home" asp-action="IndexAdmin" asp-route-inf="false">Unapproved</a>
+        </div>
+    </div>
+
+    <div class="col-md-8 col-lg-9">
+        <h3>Requests</h3>
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>FullName</th>
+                    <th>Explanation</th>
+                    <th>Document Name</th>
+                    <th>Creation Time</th>
+                    <th>Status</th>
+                    <th>Time of Approved</th>
+                    <th>Show Document</th>
+                    <th>Evaluate</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var item in Model)
+                {
+                <tr>
+                    <td>
+                        <strong>@item.UserName @item.UserLastName</strong>
+                    </td>
+                    <td>
+                        <span>@item.Explanation</span>
+                    </td>
+                    <td>
+                        <span>@item.DocumentName</span>
+                    </td>
+                    <td>
+                        <span>@item.CreationTime</span>
+                    </td>
+                    <td>
+                        @if (item.TimeOfConsideration != DateTime.MinValue)
+                        {
+                            if (@item.ConsiderationStatus == true)
+                            {
+                                <span>Approved</span>
+                            }
+                            else
+                            {
+                                <span>
+                                    Rejected
+                                </span>
+
+                            }
+                        }
+                        else
+                        {
+                            <span> Pending </span>
+                        }
+                    </td>
+                    <td>
+                        @if (item.TimeOfConsideration != DateTime.MinValue)
+                        {
+                            <span>
+                                @item.TimeOfConsideration
+                            </span>
+                        }
+                        else
+                        {
+                            <p> __/__/___ </p>
+                        }
+                    </td>
+                    <td>
+                        <a asp-controller="Home" asp-action="ShowDocument" asp-route-infpath="@item.Document" class="btn btn-outline-info">Display</a>
+                    </td>
+                    <td>
+                        <a asp-controller="Home" asp-action="EvaluateRequest" asp-route-infId="@item.Id" class="btn btn-outline-success">Evaluate</a>
+                    </td>
+                </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+</div>

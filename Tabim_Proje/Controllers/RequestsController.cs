@@ -15,10 +15,10 @@ namespace Tabim_Proje.Controllers
     [Authorize]
     public class RequestsController : Controller
     {
-        private readonly IHostingEnvironment _hostingEnv;
+        private readonly IWebHostEnvironment _hostingEnv;
         private readonly ApplicationDbContext _db;
 
-        public RequestsController(IHostingEnvironment hostingEnv, ApplicationDbContext db)
+        public RequestsController(IWebHostEnvironment hostingEnv, ApplicationDbContext db)
         {
             _hostingEnv = hostingEnv;
             _db = db;
@@ -31,14 +31,14 @@ namespace Tabim_Proje.Controllers
 
 
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult NewRequest(UserRequest userRequest, RequestVM requestVM)
+        public IActionResult NewRequest(RequestVM requestVM)
         {
 
 
             if (requestVM.File != null)
             {
                 var fileName = Path.GetFileName(requestVM.File.FileName);
-                //judge if it is pdf file
+                //Control if it is pdf file
                 string ext = Path.GetExtension(requestVM.File.FileName);
                 if (ext.ToLower() != ".pdf")
                 {
@@ -51,11 +51,15 @@ namespace Tabim_Proje.Controllers
                 {
                     requestVM.File.CopyToAsync(fileSteam);
                 }
-                //your logic to save filePath to database, for example
 
-
+                // To save filePath to database
+                UserRequest userRequest = new();
                 userRequest.ApplicationUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                userRequest.UserName = requestVM.UserName;
+                userRequest.UserLastName = requestVM.UserLastName;
+                userRequest.Explanation = requestVM.Explanation;
                 userRequest.Document = filePath;
+                userRequest.DocumentName = fileName;
                 _db.UserRequests.Add(userRequest);
                 _db.SaveChanges();
                 return RedirectToAction("Index", "Home");

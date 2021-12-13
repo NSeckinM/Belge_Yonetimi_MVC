@@ -45,9 +45,73 @@ namespace Tabim_Proje.Controllers
 
         }
 
-        public IActionResult IndexAdmin()
+        public IActionResult IndexAdmin(string inf)
         {
-            return View(_db.UserRequests.ToList());
+            IQueryable<UserRequest> requests = _db.UserRequests;
+
+            AdminVM vm = new();
+
+            if (inf == "false")
+            {
+                vm.Unapproved = requests.Where(x => x.ConsiderationStatus == false && x.TimeOfConsideration != DateTime.MinValue).OrderByDescending(x => x.CreationTime).ToList();
+                return View(vm.Unapproved);
+            }
+            else if (inf == "true")
+            {
+                vm.Approved = requests.Where(x => x.ConsiderationStatus == true).OrderByDescending(x => x.CreationTime).ToList();
+                return View(vm.Approved);
+            }
+            else
+            {
+                vm.AllRequest = requests.OrderByDescending(x => x.CreationTime).ToList();
+                return View(vm.AllRequest);
+            }
+
+        }
+
+
+        public IActionResult ShowDocument(string infpath)
+        {
+            //return File("~/documents/seckinMantar-Resume.pdf", "application/pdf");
+            return File(infpath, "application/pdf");  //fileResult
+        }
+
+
+        public IActionResult EvaluateRequest(int infId)
+        {
+            UserRequest userRequest = _db.UserRequests.Find(infId);
+            if (userRequest == null)
+            {
+                return NotFound();
+            }
+            RequestEvaluateVM vm = new();
+            vm.Id = userRequest.Id;
+            
+            return View(vm);
+        }
+
+        [HttpPost,ValidateAntiForgeryToken]
+        public IActionResult EvaluateRequest(RequestEvaluateVM vm, string status)
+        {
+            bool RequestStatus;
+
+            if (status == "true")
+            {
+                RequestStatus = true;
+            }
+            else
+            {
+                RequestStatus = false;
+            }
+
+                UserRequest userRequest = _db.UserRequests.Find(vm.Id);
+                userRequest.ConsiderationStatus = RequestStatus;
+                userRequest.TimeOfConsideration = DateTime.Now;
+                userRequest.ResultOfConsideration = vm.ResultOfConsideration;
+                _db.SaveChanges();
+
+                return RedirectToAction("IndexAdmin", "Home");
+ 
         }
 
         public IActionResult Privacy()

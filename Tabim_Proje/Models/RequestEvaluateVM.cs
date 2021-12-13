@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Tabim_Proje.Models
 {
-    public class RequestVM
+    public class RequestEvaluateVM
     {
+        public int Id { get; set; }
 
         [Required, MaxLength(50)]
         public string UserName { get; set; }
@@ -18,8 +18,10 @@ namespace Tabim_Proje.Models
 
         public string Explanation { get; set; }
 
-        [Required(ErrorMessage = "This field is required and only .pdf extension document type  is acceptable !")]
-        public IFormFile File { get; set; }
+        public string ResultOfConsideration { get; set; }
 
+        public bool ConsiderationStatus { get; set; }
+
+        public DateTime TimeOfConsideration { get; set; }
     }
 }
