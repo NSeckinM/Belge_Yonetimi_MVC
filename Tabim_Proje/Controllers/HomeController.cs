@@ -1,15 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SelectPdf;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Tabim_Proje.Data;
 using Tabim_Proje.Models;
+using Aspose.Pdf;
+using Aspose.Pdf.Text;
+using System.Data;
+using System.IO;
 
 namespace Tabim_Proje.Controllers
 {
@@ -17,11 +21,13 @@ namespace Tabim_Proje.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _db;
+        private readonly IHostEnvironment env;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db,IHostEnvironment env)
         {
             _logger = logger;
             _db = db;
+            this.env = env;
         }
 
         public IActionResult Index()
@@ -74,15 +80,48 @@ namespace Tabim_Proje.Controllers
             }
 
         }
-
         public IActionResult Report()
         {
+            //IQueryable<UserRequest> requestlist = _db.UserRequests;
 
-            return View();
+            //var doc1 = new Document
+            //{
+            //    PageInfo = new PageInfo { Margin = new MarginInfo(28, 28, 28, 40) }
+            //};
+            //var pdfpage = doc1.Pages.Add();
+            //Table table = new Table
+            //{
+            //    ColumnWidths = "9% 9% 9% 9% 9% 9% 9% 9% 9% 9% 9%",
+            //    DefaultCellPadding = new MarginInfo(6, 3, 6, 3),
+            //    Border = new BorderInfo(BorderSide.All, .5f, Color.Black),
+            //    DefaultCellBorder = new BorderInfo(BorderSide.All, .2f, Color.Black)
+            //};
+
+            //DataTable dt = Convert.ChangeType(requestlist, System.Data.DataTable);
+
+            //table.ImportDataTable(requestlist, true, 0, 0);
+
+            return View(_db.UserRequests.ToList());
         }
+
+        [HttpPost]
+        public IActionResult GeneratePdf(string html)
+        {
+            html = html.Replace("StrtTag", "<").Replace("EndTag", ">");
+            HtmlToPdf oHtmlToPdf = new HtmlToPdf();
+            PdfDocument oPdfDoc = oHtmlToPdf.ConvertHtmlString(html);
+            byte[] pdf = oPdfDoc.Save();
+            oPdfDoc.Close();
+
+            return File(pdf, "application/pdf", "RequestReport.pdf");
+        }
+
+        
         public IActionResult ShowDocument(string infpath)
         {
-            return File(infpath, "application/pdf");
+
+            //return new PhysicalFileResult(env.ContentRootPath + "/wwwroot/documents/seckinMantar-Resume.pdf", "application/pdf");
+            return File("~/documents/"+infpath, "application/pdf");
         }
 
         public IActionResult EvaluateRequest(int infId)
