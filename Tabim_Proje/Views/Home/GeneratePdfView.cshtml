@@ -1,0 +1,72 @@
+﻿@model List<UserRequest>
+
+    <a asp-controller="Home" asp-action="Report" style="float: right; margin-bottom: 10px;" class="btn btn-outline-dark">Generate Pdf</a>
+
+    <div>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>FullName</th>
+                    <th>Explanation</th>
+                    <th>Document Name</th>
+                    <th>Creation Time</th>
+                    <th>Status</th>
+                    <th>Time of Consideration</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <strong>@item.UserName @item.UserLastName</strong>
+                        </td>
+                        <td>
+                            <span>@item.Explanation</span>
+                        </td>
+                        <td>
+                            <span>@item.DocumentName</span>
+                        </td>
+                        <td>
+                            <span>@item.CreationTime</span>
+                        </td>
+                        <td>
+                            @if (item.TimeOfConsideration != DateTime.MinValue)
+                            {
+                                if (@item.ConsiderationStatus == true)
+                                {
+                                    <span>Approved</span>
+                                }
+                                else
+                                {
+                                    <span>
+                                        Rejected
+                                    </span>
+
+                                }
+                            }
+                            else
+                            {
+                                <span> Pending </span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.TimeOfConsideration != DateTime.MinValue)
+                            {
+                                <span>
+                                    @item.TimeOfConsideration
+                                </span>
+                            }
+                            else
+                            {
+                                <p> __/__/___ </p>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>

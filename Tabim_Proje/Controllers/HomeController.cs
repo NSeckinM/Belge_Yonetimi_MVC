@@ -1,19 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Aspose.Pdf;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SelectPdf;
 using System;
+using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Security.Claims;
 using Tabim_Proje.Data;
 using Tabim_Proje.Models;
-using Aspose.Pdf;
-using Aspose.Pdf.Text;
-using System.Data;
-using System.IO;
 
 namespace Tabim_Proje.Controllers
 {
@@ -21,13 +19,12 @@ namespace Tabim_Proje.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _db;
-        private readonly IHostEnvironment env;
+        ReportDb dbop = new ReportDb();
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db,IHostEnvironment env)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db)
         {
             _logger = logger;
             _db = db;
-            this.env = env;
         }
 
         public IActionResult Index()
@@ -82,41 +79,42 @@ namespace Tabim_Proje.Controllers
         }
         public IActionResult Report()
         {
-            //IQueryable<UserRequest> requestlist = _db.UserRequests;
+            var doc1 = new Document
+            {
+                PageInfo = new PageInfo { Margin = new MarginInfo(28, 28, 28, 40) }
+            };
+            var pdfpage = doc1.Pages.Add();
+            Table table = new Table
+            {
+                ColumnWidths = "10% 15% 15% 20% 20% 20%",
+                DefaultCellPadding = new MarginInfo(10, 5, 10, 5),
+                Border = new BorderInfo(BorderSide.All, .5f, Color.Black),
+                DefaultCellBorder = new BorderInfo(BorderSide.All, .2f, Color.Black)
+            };
 
-            //var doc1 = new Document
-            //{
-            //    PageInfo = new PageInfo { Margin = new MarginInfo(28, 28, 28, 40) }
-            //};
-            //var pdfpage = doc1.Pages.Add();
-            //Table table = new Table
-            //{
-            //    ColumnWidths = "9% 9% 9% 9% 9% 9% 9% 9% 9% 9% 9%",
-            //    DefaultCellPadding = new MarginInfo(6, 3, 6, 3),
-            //    Border = new BorderInfo(BorderSide.All, .5f, Color.Black),
-            //    DefaultCellBorder = new BorderInfo(BorderSide.All, .2f, Color.Black)
-            //};
+            DataTable dt = dbop.GetRecord();
 
-            //DataTable dt = Convert.ChangeType(requestlist, System.Data.DataTable);
+            table.ImportDataTable(dt, true, 0, 0);
 
-            //table.ImportDataTable(requestlist, true, 0, 0);
+            doc1.Pages[1].Paragraphs.Add(table);
 
+            using (var streamout = new MemoryStream())
+            {
+                doc1.Save(streamout);
+                return new FileContentResult(streamout.ToArray(),"application/pdf") 
+                {
+                    FileDownloadName = "ReportOfTheAllRequest.pdf"
+                };
+            }
+        }
+
+
+        public IActionResult GeneratePdfView()
+        {
             return View(_db.UserRequests.ToList());
         }
 
-        [HttpPost]
-        public IActionResult GeneratePdf(string html)
-        {
-            html = html.Replace("StrtTag", "<").Replace("EndTag", ">");
-            HtmlToPdf oHtmlToPdf = new HtmlToPdf();
-            PdfDocument oPdfDoc = oHtmlToPdf.ConvertHtmlString(html);
-            byte[] pdf = oPdfDoc.Save();
-            oPdfDoc.Close();
 
-            return File(pdf, "application/pdf", "RequestReport.pdf");
-        }
-
-        
         public IActionResult ShowDocument(string infpath)
         {
 
